@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.media.FaceDetector;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -27,6 +28,8 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.IOException;
 
+import static android.content.ContentValues.TAG;
+
 public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
 
     Camera camera;
@@ -39,8 +42,11 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
 
     public static CameraFragment newInstance(){
         CameraFragment fragment = new CameraFragment();
+
         return fragment;
     }
+
+    static int randomi = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -66,12 +72,15 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
             }
         });
 
-        /*mSurfaceView.setOnClickListener(new View.OnClickListener() { // this works for one click
-            @Override
-            public void onClick(View view) {
-                switchCamera();
-            }
-        });*/
+        // Wrongly positioned code (supposed to be in surfaceCreated) and it conflicts with the
+        // setFocusMode from surfaceCreated
+        /*// get Camera parameters
+        Camera.Parameters params = camera.getParameters();
+        // set the focus mode
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+        // set Camera parameters
+        camera.setParameters(params);*/
+
         mSurfaceView.setOnClickListener(new DoubleClickListener(500) {
 
  				public void onDoubleClick() {
@@ -80,6 +89,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
  					// within a span of 500ms (default).
  				}
  			});
+
 
         return view;
     }
@@ -98,68 +108,69 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
 
         camera.setParameters(parameters);
 
+        camera.setFaceDetectionListener(new MyFaceDetectionListener());
+
         try {
             camera.setPreviewDisplay(surfaceHolder);
+
+
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        camera.startPreview();
+            Log.d(TAG, "Error setting camera preview: " + e.getMessage());
+        }camera.startPreview();
+
+        startFaceDetection(); // start face detection feature
+
+        if (randomi == 1){Toast.makeText(getContext(),"I see a face",Toast.LENGTH_LONG);}
+        // For FaceDetection -- mustn't declare two separate error catchers
+        /*try {
+            camera.setPreviewDisplay(surfaceHolder); // input argument retrieved from function header
+            camera.startPreview();
+
+            startFaceDetection(); // start face detection feature
+
+        } catch (IOException e) {
+            Log.d(TAG, "Error setting camera preview: " + e.getMessage());
+        }*/
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+       if (holder.getSurface() == null){
+            // preview surface does not exist
+            Log.d(TAG, "holder.getSurface() == null");
+            return;
+        }
+
+        try {
+            camera.stopPreview();
+
+        } catch (Exception e){
+            // ignore: tried to stop a non-existent preview
+            Log.d(TAG, "Error stopping camera preview: " + e.getMessage());
+        }
+
+        try {
+            camera.setPreviewDisplay(holder);
+            camera.startPreview();
+
+
+            startFaceDetection(); // re-start face detection feature
+            if (randomi == 1){Toast.makeText(getContext(),"I see a face",Toast.LENGTH_LONG);}
+
+        } catch (Exception e){
+            // ignore: tried to stop a non-existent preview
+            Log.d(TAG, "Error starting camera preview: " + e.getMessage());
+        }
+
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
     }
 
-/*
-    public class MyView extends View {
-
-        GestureDetector gestureDetector;
-
-        public MyView(Context context, AttributeSet attrs) {
-            super(context, attrs);
-            // creating new gesture detector
-            gestureDetector = new GestureDetector(context, new GestureListener());
-        }
-
-// skipping measure calculation and drawing
-
-        // delegate the event to the gesture detector
-        @Override
-        public boolean onTouchEvent(MotionEvent e) {
-            //Single Tap
-            return gestureDetector.onTouchEvent(e);
-        }
-
-
-
-        private class GestureListener extends GestureDetector.SimpleOnGestureListener {
-
-            @Override
-            public boolean onDown(MotionEvent e) {
-                return true;
-            }
-
-            // event when double tap occurs
-            @Override
-            public boolean onDoubleTap(MotionEvent e) {
-                float x = e.getX();
-                float y = e.getY();
-
-                Log.d("Double Tap", "Tapped at: (" + x + "," + y + ")");
-                //switchCamera();
-                return true;
-            }
-
-        }
-    }*/
-    //To implement single touch switching
+    //To camera switching
     public void switchCamera(){
-        //Camera.CameraInfo currentCameraId = new Camera.CameraInfo();
-
 
         camera.stopPreview();
         camera.release();
@@ -178,51 +189,16 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
             e.printStackTrace();
         }
         camera.startPreview();
+        camera.setFaceDetectionListener(new MyFaceDetectionListener());
+
     }
 
-     /*// First method
-    //mSurfaceView = view.findViewById(R.id.surfaceView);
-     SurfaceView otherCamera = mSurfaceView;
-    //SurfaceView otherCamera = (SurfaceView) findViewById(R.id.surfaceView);
-
-    otherCamera.setOnClickListener(new View.OnClickListener()
-
-    {
-        @Override
-        public void onClick (View view){
-        if (inPreview) {
-            camera.stopPreview();
-        }
-        //NB: if you don't release the current camera before switching, you app will crash
-        camera.release();
-
-        //swap the id of the camera to be used
-        if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
-            currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
-        } else {
-            currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-        }
-        camera = Camera.open(currentCameraId);
-
-        setCameraDisplayOrientation(CameraActivity.this, currentCameraId, camera);
-        try {
-
-            camera.setPreviewDisplay(previewHolder);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        camera.startPreview();
-    }
-    }
-*/
         public static void setCameraDisplayOrientation (Fragment activity, // I had to change Activity to Fragment here
                                                         // in the input parameter
         int cameraId, android.hardware.Camera camera){
         android.hardware.Camera.CameraInfo info =
                 new android.hardware.Camera.CameraInfo();
         android.hardware.Camera.getCameraInfo(cameraId, info);
-        /*int rotation = activity.getWindowManager().getDefaultDisplay()
-                .getRotation();           */      // I'll need to figure this out
             int rotation = activity.getActivity().getWindowManager().getDefaultDisplay()
                     .getRotation();
         int degrees = 0;
@@ -251,7 +227,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         camera.setDisplayOrientation(result);
     }
 
-//*/
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -266,6 +242,18 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
                 break;
             }
         }
+    }
+
+    public void startFaceDetection(){
+        // Try starting Face Detection
+        Camera.Parameters params = camera.getParameters();
+
+        // start face detection only *after* preview has started
+        if (params.getMaxNumDetectedFaces() > 0){
+            // camera supports face detection, so can start it:
+            camera.startFaceDetection();
+        }
+
     }
 
     private void LogOut() {
