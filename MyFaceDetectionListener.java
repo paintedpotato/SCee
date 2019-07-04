@@ -7,6 +7,8 @@ import android.hardware.camera2.params.Face;
 import android.util.Log;
 import android.widget.Toast;
 
+import android.graphics.Rect;
+
 public class MyFaceDetectionListener implements Camera.FaceDetectionListener {
 
 

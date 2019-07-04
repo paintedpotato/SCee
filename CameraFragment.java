@@ -1,5 +1,14 @@
 package com.example.sawe.scee;
 
+// THE FIRST FaceDetector code from Android - doesn't draw over the fragment/surfaceView.
+
+// THE SECOND FaceDetector code from Firebase - only works for still images (bitmap objects - I
+//      could be wrong..) and has the error 'unable to resolve symbol rect/score'
+
+// NOW THE THIRD FaceDetector code from bytefish.de
+// ALL OF THE FOLLOWING CODE REPRESENTS THE PHYSICAL PROGRESS I HAVE ATTAINED THUS FAR.
+// FOURTH - I will explore my own version of an ML FD built via tf
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -25,6 +34,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+//import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+//import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
 
 import java.io.IOException;
 
@@ -48,6 +59,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
 
     static int randomi = 0;
 
+ //   private Camera.Face[] mFaces;
+ //   private FaceOverlayView mFaceView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_camera, container, false);
@@ -72,6 +85,19 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
             }
         });
 
+        // High-accuracy landmark detection and face classification
+   /*     FirebaseVisionFaceDetectorOptions highAccuracyOpts =
+                new FirebaseVisionFaceDetectorOptions.Builder()
+                        .setPerformanceMode(FirebaseVisionFaceDetectorOptions.ACCURATE)
+                        .setLandmarkMode(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
+                        .setClassificationMode(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
+                        .build();
+
+// Real-time contour detection of multiple faces
+        FirebaseVisionFaceDetectorOptions realTimeOpts =
+                new FirebaseVisionFaceDetectorOptions.Builder()
+                        .setContourMode(FirebaseVisionFaceDetectorOptions.ALL_CONTOURS)
+                        .build();*/
         // Wrongly positioned code (supposed to be in surfaceCreated) and it conflicts with the
         // setFocusMode from surfaceCreated
         /*// get Camera parameters
@@ -109,6 +135,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         camera.setParameters(parameters);
 
         camera.setFaceDetectionListener(new MyFaceDetectionListener());
+
+ //       FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(mSurfaceView);
 
         try {
             camera.setPreviewDisplay(surfaceHolder);
