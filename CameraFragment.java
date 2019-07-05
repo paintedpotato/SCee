@@ -2,6 +2,8 @@ package com.example.sawe.scee;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -51,7 +53,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
     private Camera.Face[] mFaces;
 
     //bytefishtest
-    //public FaceOverlayView mFaceView;         // CODE 1
+    //public FaceOverlayView mFaceView;         // ******************CODE 1
     //public FrameLayout mFaceView;             // ..
 
     // Normal Declarations
@@ -68,10 +70,13 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
 
         return fragment;
     }
+    /*String FACE_FOUND = "Face Found";         // ---------CODE 2
+    PendingIntent faceFoundPI;
+    BroadcastReceiver faceDetectedReceiver;*/
 
-    public static int randomi = 0;
+    static int randomi = 0;
 
-    // bytefish FDListener                      // CODE 2
+    // bytefish FDListener                      // *******************CODE 1
     /**
      * Sets the faces for the overlay view, so it can be updated
      * and the face overlays will be drawn again.
@@ -96,7 +101,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         mSurfaceView = view.findViewById(R.id.surfaceView); // Holder controls surfView, bridging gap btn camera n SView
         mSurfaceHolder = mSurfaceView.getHolder();
 
-        //mFaceView = view.findViewById(R.id.faceOverlay);  // CODE 3
+        //mFaceView = view.findViewById(R.id.faceOverlay);  // ***********CODE 1
         //mFaceView = (FrameLayout)findViewById(R.id.faceOverlay);
 
         // if permission is not granted, ask app to give permission
@@ -148,7 +153,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         });
 
 
-        // bytefish - pas de necessarie             // CODE 4
+        // bytefish - pas de necessarie             // *********************CODE 1
         /*mView = new SurfaceView(this);
 
         setContentView(mView);
@@ -200,15 +205,14 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         //camera.setFaceDetectionListener(faceDetectionListener);
         //camera.startFaceDetection();
 
+        //deliveredPI = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
+
         camera.setFaceDetectionListener(new MyFaceDetectionListener());
         startFaceDetection();
-        //while(randomi==0){Toast.makeText(getContext(), "I don't see a face", Toast.LENGTH_LONG).show();}
-        //while(randomi==1){Toast.makeText(getContext(), "I see a face", Toast.LENGTH_LONG).show();}
 
-        /*if (randomi == 1) {
-            Toast.makeText(getContext(), "I see a face", Toast.LENGTH_LONG).show();
-        }else{Toast.makeText(getContext(), "I don't see a face", Toast.LENGTH_LONG).show();}
-*/
+        //          --------------CODE 2
+        //faceFoundPI = PendingIntent.getBroadcast(getContext(), 0, new Intent(FACE_FOUND), 0);
+
     }
 
     @Override
@@ -234,12 +238,6 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
 
             //camera.startFaceDetection(); // re-start face detection feature
             startFaceDetection();
-            //while(randomi==0){Toast.makeText(getContext(), "I don't see a face", Toast.LENGTH_LONG).show();}
-            //while(randomi==1){Toast.makeText(getContext(), "I see a face", Toast.LENGTH_LONG).show();}
-
-            /*if (randomi == 1) {
-                Toast.makeText(getContext(), "I see a face", Toast.LENGTH_LONG).show();
-            }else{Toast.makeText(getContext(), "I don't see a face", Toast.LENGTH_LONG).show();}*/
 
         } catch (Exception e) {
             // ignore: tried to stop a non-existent preview
@@ -251,6 +249,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
     }
+
 
     //To camera switching
     public void switchCamera() {
@@ -276,10 +275,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         //camera.setFaceDetectionListener(faceDetectionListener);
         //camera.startFaceDetection();
 
-        camera.setFaceDetectionListener(new MyFaceDetectionListener());
-        startFaceDetection();
-        //while(randomi==0){Toast.makeText(getContext(), "I don't see a face", Toast.LENGTH_LONG).show();}
-        //while(randomi==1){Toast.makeText(getContext(), "I see a face", Toast.LENGTH_LONG).show();}
+        //camera.setFaceDetectionListener(new MyFaceDetectionListener());
+        //startFaceDetection();
 
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable(){
@@ -290,11 +287,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
 
             }
         }, 5000);
-//*/
-        /*if (randomi == 1) {
-            Toast.makeText(getContext(), "I see a face", Toast.LENGTH_LONG).show();
-        }else{Toast.makeText(getContext(), "I don't see a face", Toast.LENGTH_LONG).show();}
-*/
+
 
     }
 
@@ -359,6 +352,22 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
             camera.startFaceDetection();
         }
 
+        /* // ------------CODE 2
+        faceDetectedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context arg0, Intent arg1) {
+                switch (randomi) {
+                    //case 0:
+                     //   Toast.makeText(getContext(), "Face not found",
+                       //         Toast.LENGTH_SHORT).show();
+                        //break;
+                    case 1:
+                        Toast.makeText(getContext(), "Face is found",
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        };*/
     }
 
     private void LogOut() {
