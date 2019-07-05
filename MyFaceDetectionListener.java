@@ -1,6 +1,7 @@
 package com.example.sawe.scee;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.camera2.params.Face;
 //import android.media.FaceDetector;
@@ -20,9 +21,14 @@ public class MyFaceDetectionListener implements Camera.FaceDetectionListener {
                     " Face 1 Location X: " + faces[0].rect.centerX() +
                     "Y: " + faces[0].rect.centerY() );
 
-            //return Toast.makeText(this, "I see a face(s) :)", Toast.LENGTH_SHORT).show();
+            //return
+            /*Intent myIntent = new Intent(this, MainActivity.class);
+            startActivity(myIntent);
+            Toast.makeText(MainActivity.this, "I see a face(s) :)", Toast.LENGTH_SHORT).show();
+            */
             CameraFragment.randomi = 1;
         }
+        else{CameraFragment.randomi = 0;}
     }
 
 
