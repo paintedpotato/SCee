@@ -2,7 +2,6 @@ package com.example.sawe.scee;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -53,7 +52,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
     private Camera.Face[] mFaces;
 
     //bytefishtest
-    //public FaceOverlayView mFaceView;         // ******************CODE 1
+    //public FaceOverlayView mFaceView;         // CODE 1
     //public FrameLayout mFaceView;             // ..
 
     // Normal Declarations
@@ -70,13 +69,11 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
 
         return fragment;
     }
-    /*String FACE_FOUND = "Face Found";         // ---------CODE 2
-    PendingIntent faceFoundPI;
-    BroadcastReceiver faceDetectedReceiver;*/
 
-    static int randomi = 0;
+    public static int randomi = 0; // no single event of spotting face
+    public static int random2 = 0; // no continual spotting of unique face
 
-    // bytefish FDListener                      // *******************CODE 1
+    // bytefish FDListener                      // CODE 2
     /**
      * Sets the faces for the overlay view, so it can be updated
      * and the face overlays will be drawn again.
@@ -101,7 +98,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         mSurfaceView = view.findViewById(R.id.surfaceView); // Holder controls surfView, bridging gap btn camera n SView
         mSurfaceHolder = mSurfaceView.getHolder();
 
-        //mFaceView = view.findViewById(R.id.faceOverlay);  // ***********CODE 1
+        //mFaceView = view.findViewById(R.id.faceOverlay);  // CODE 3
         //mFaceView = (FrameLayout)findViewById(R.id.faceOverlay);
 
         // if permission is not granted, ask app to give permission
@@ -153,7 +150,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         });
 
 
-        // bytefish - pas de necessarie             // *********************CODE 1
+        // bytefish - pas de necessarie             // CODE 4
         /*mView = new SurfaceView(this);
 
         setContentView(mView);
@@ -205,13 +202,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         //camera.setFaceDetectionListener(faceDetectionListener);
         //camera.startFaceDetection();
 
-        //deliveredPI = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
-
         camera.setFaceDetectionListener(new MyFaceDetectionListener());
         startFaceDetection();
-
-        //          --------------CODE 2
-        //faceFoundPI = PendingIntent.getBroadcast(getContext(), 0, new Intent(FACE_FOUND), 0);
 
     }
 
@@ -250,7 +242,6 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
     public void surfaceDestroyed(SurfaceHolder holder) {
     }
 
-
     //To camera switching
     public void switchCamera() {
 
@@ -275,9 +266,9 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         //camera.setFaceDetectionListener(faceDetectionListener);
         //camera.startFaceDetection();
 
-        //camera.setFaceDetectionListener(new MyFaceDetectionListener());
-        //startFaceDetection();
-
+        camera.setFaceDetectionListener(new MyFaceDetectionListener());
+        startFaceDetection();
+/*
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable(){
             @Override
@@ -286,7 +277,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
                 else{Toast.makeText(getContext(), "I see space", Toast.LENGTH_LONG).show();}
 
             }
-        }, 5000);
+        }, 5000);*/
 
 
     }
@@ -352,22 +343,25 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
             camera.startFaceDetection();
         }
 
-        /* // ------------CODE 2
-        faceDetectedReceiver = new BroadcastReceiver() {
+        //if(randomi==1){Toast.makeText(getContext(), "I see a face", Toast.LENGTH_LONG).show();}
+        //else{Toast.makeText(getContext(), "I see space", Toast.LENGTH_LONG).show();}
+
+        // Init
+        final Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
             @Override
-            public void onReceive(Context arg0, Intent arg1) {
-                switch (randomi) {
-                    //case 0:
-                     //   Toast.makeText(getContext(), "Face not found",
-                       //         Toast.LENGTH_SHORT).show();
-                        //break;
-                    case 1:
-                        Toast.makeText(getContext(), "Face is found",
-                                Toast.LENGTH_SHORT).show();
-                        break;
-                }
+            public void run() {
+                if(random2==1){Toast.makeText(getContext(), "I see face", Toast.LENGTH_LONG).show();
+                handler.postDelayed(this, 1000);
             }
-        };*/
+                else if(random2==0){Toast.makeText(getContext(), "I see no face", Toast.LENGTH_LONG).show();
+                    handler.postDelayed(this, 1000);
+                }}
+        };// a service would have been a whole lot easier
+        // went with a polling loop
+
+//Start
+        handler.postDelayed(runnable, 1000);
     }
 
     private void LogOut() {

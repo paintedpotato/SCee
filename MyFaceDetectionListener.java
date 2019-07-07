@@ -21,14 +21,48 @@ public class MyFaceDetectionListener implements Camera.FaceDetectionListener {
                     " Face 1 Location X: " + faces[0].rect.centerX() +
                     "Y: " + faces[0].rect.centerY() );
 
+
             //return
-            /*Intent myIntent = new Intent(this, MainActivity.class);
+
+            /* I believe this code is used for starting/moving to another activity
+            Intent myIntent = new Intent(this, FaceDetService.class);
             startActivity(myIntent);
             Toast.makeText(MainActivity.this, "I see a face(s) :)", Toast.LENGTH_SHORT).show();
             */
-            CameraFragment.randomi = 1;
+
+
+            // a service has proven itself so far that it does not want to be started
+            // upon immediate face coming into contact with camera. I think the startfd()
+            // has to be called everytime one wants to perform some level of facedetection
+            // hence..
+
+
+
+            //Context.startService(FaceDetService);
+
+
+
+
+
+
+
+            // called to alert 1 face spotted
+            if (CameraFragment.random2 == 0){
+                CameraFragment.randomi = 1;
+                CameraFragment.random2 = 1;// in the case the same 1 face is still being spotted
+
+            }
+            // at this point I don't think I need randomi. It's redundant. NO
+            // It is needed
+
+            // This app should only send a service/broadcast from here
+
         }
-        else{CameraFragment.randomi = 0;}
+        // Resets the whole process when there are no (new) faces spotted
+        else{
+            CameraFragment.randomi = 0;
+            CameraFragment.random2 = 0;
+        }
     }
 
 
