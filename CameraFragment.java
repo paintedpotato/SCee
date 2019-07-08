@@ -205,6 +205,12 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         camera.setFaceDetectionListener(new MyFaceDetectionListener());
         startFaceDetection();
 
+        if(random2==1){
+            //handler.postDelayed(this, 3000);
+            Toast.makeText(getContext(), "I see face", Toast.LENGTH_LONG).show();
+            //handler.postDelayed(this, 3000);
+        }
+
     }
 
     @Override
@@ -234,6 +240,11 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         } catch (Exception e) {
             // ignore: tried to stop a non-existent preview
             Log.d(TAG, "Error starting camera preview: " + e.getMessage());
+        }
+        if(random2==1){
+            //handler.postDelayed(this, 3000);
+            Toast.makeText(getContext(), "I see face", Toast.LENGTH_LONG).show();
+            //handler.postDelayed(this, 3000);
         }
 
     }
@@ -341,27 +352,37 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         if (params.getMaxNumDetectedFaces() > 0) {
             // camera supports face detection, so can start it:
             camera.startFaceDetection();
+
+            getActivity().startService(new Intent(getActivity(),FaceDetService.class));
         }
+
+
+        //Context.startService(new Intent(getApplicationContext(), FaceDetService.class));
+        //startService((FaceDetService.class));
 
         //if(randomi==1){Toast.makeText(getContext(), "I see a face", Toast.LENGTH_LONG).show();}
         //else{Toast.makeText(getContext(), "I see space", Toast.LENGTH_LONG).show();}
 
         // Init
-        final Handler handler = new Handler();
+        /*final Handler handler = new Handler();
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                if(random2==1){Toast.makeText(getContext(), "I see face", Toast.LENGTH_LONG).show();
-                handler.postDelayed(this, 1000);
+                if(random2==1){
+                    //handler.postDelayed(this, 3000);
+                    Toast.makeText(getContext(), "I see face", Toast.LENGTH_LONG).show();
+                    //handler.postDelayed(this, 3000);
             }
-                else if(random2==0){Toast.makeText(getContext(), "I see no face", Toast.LENGTH_LONG).show();
-                    handler.postDelayed(this, 1000);
+                else if(random2==0){
+                    //handler.postDelayed(this, 3000);
+                    Toast.makeText(getContext(), "I see no face", Toast.LENGTH_LONG).show();
+                    //handler.postDelayed(this, 3000);
                 }}
         };// a service would have been a whole lot easier
         // went with a polling loop
 
 //Start
-        handler.postDelayed(runnable, 1000);
+        handler.postDelayed(runnable, 3000);//*/
     }
 
     private void LogOut() {
@@ -467,4 +488,12 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         }
     //}
 //*/
+    public void toaster(){
+        //if(random2==1)
+        {
+            //handler.postDelayed(this, 3000);
+            Toast.makeText(getContext(), "I see face", Toast.LENGTH_LONG).show();
+            //handler.postDelayed(this, 3000);
+        }
+    }
 }

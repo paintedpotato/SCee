@@ -10,8 +10,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.widget.Toast;
+
+import static com.example.sawe.scee.CameraFragment.random2;
 
 
 public class FaceDetService extends Service {
@@ -25,14 +29,36 @@ public class FaceDetService extends Service {
         }
     }
 
+    private Handler handler;
+
+    public static final long DEFAULT_SYNC_INTERVAL = 10 * 1000;
+
+    private Runnable runnableService = new Runnable() {
+        @Override
+        public void run() {
+            //create AsyncTask here
+            if(random2==1){
+                //void instance;
+                new CameraFragment().toaster();
+                //instance;
+                //CameraFragment.class.getMethod().toaster();
+            }
+            handler.postDelayed(runnableService, DEFAULT_SYNC_INTERVAL);
+        }
+    };
+
     @Override
     public void onCreate(){
+
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         showNotification();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flag, int startId){
+
+        handler = new Handler();
+        handler.post(runnableService);
 
         return START_NOT_STICKY;
     }
@@ -45,10 +71,17 @@ public class FaceDetService extends Service {
         // Tell the user we stopped.
         //Toast.makeText(this, R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
         Toast.makeText(this, "fd stopped", Toast.LENGTH_SHORT).show();
+
+        // OR
+        handler.removeCallbacks(runnableService);
+        stopSelf();
+        super.onDestroy();
     }
 
     @Override
     public IBinder onBind(Intent intent) {
+    // OR
+        // return null;
         return mBinder;
     }
 
