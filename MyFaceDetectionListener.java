@@ -1,14 +1,14 @@
 package com.example.sawe.scee;
 
-import android.content.Context;
-import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.camera2.params.Face;
 //import android.media.FaceDetector;
+import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 import android.graphics.Rect;
+
+import static com.example.sawe.scee.CameraFragment.randomi;
 
 public class MyFaceDetectionListener implements Camera.FaceDetectionListener {
 
@@ -36,31 +36,32 @@ public class MyFaceDetectionListener implements Camera.FaceDetectionListener {
             // has to be called everytime one wants to perform some level of facedetection
             // hence..
 
-
-
             //Context.startService(FaceDetService);
 
-
-
-
-
-
-
+            //static void FaceDetService.onCreate();
+            //public this1() = (FaceDetService.class.getMethods());
             // called to alert 1 face spotted
             if (CameraFragment.random2 == 0){
-                CameraFragment.randomi = 1;
+                randomi = 1;
                 CameraFragment.random2 = 1;// in the case the same 1 face is still being spotted
-
             }
             // at this point I don't think I need randomi. It's redundant. NO
             // It is needed
-
             // This app should only send a service/broadcast from here
 
         }
         // Resets the whole process when there are no (new) faces spotted
         else{
-            CameraFragment.randomi = 0;
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable(){
+                @Override
+                public void run(){
+                    randomi = 0; // delays the transformation of randomi
+
+                }
+            }, 2000);
+
             CameraFragment.random2 = 0;
         }
     }

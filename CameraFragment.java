@@ -73,6 +73,23 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
     public static int randomi = 0; // no single event of spotting face
     public static int random2 = 0; // no continual spotting of unique face
 
+    private Handler handler;
+
+    public static final long DEFAULT_SYNC_INTERVAL = 10 * 1000;
+
+    private Runnable runnableService = new Runnable() {
+        @Override
+        public void run() {
+            //Camera.Parameters params = camera.getParameters();
+
+            //create AsyncTask here
+
+                    Toast.makeText(getContext(),"See Face",Toast.LENGTH_LONG).show();
+
+
+            handler.postDelayed(runnableService, DEFAULT_SYNC_INTERVAL);
+        }
+    };
     // bytefish FDListener                      // CODE 2
     /**
      * Sets the faces for the overlay view, so it can be updated
@@ -205,11 +222,11 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         camera.setFaceDetectionListener(new MyFaceDetectionListener());
         startFaceDetection();
 
-        if(random2==1){
+        /*if(random2==1){
             //handler.postDelayed(this, 3000);
             Toast.makeText(getContext(), "I see face", Toast.LENGTH_LONG).show();
             //handler.postDelayed(this, 3000);
-        }
+        }*/
 
     }
 
@@ -241,11 +258,11 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
             // ignore: tried to stop a non-existent preview
             Log.d(TAG, "Error starting camera preview: " + e.getMessage());
         }
-        if(random2==1){
+        /*if(random2==1){
             //handler.postDelayed(this, 3000);
             Toast.makeText(getContext(), "I see face", Toast.LENGTH_LONG).show();
             //handler.postDelayed(this, 3000);
-        }
+        }*/
 
     }
 
@@ -347,21 +364,36 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
     public void startFaceDetection() {
         // Try starting Face Detection
         Camera.Parameters params = camera.getParameters();
+        //handler = new Handler();
+        //handler.post(runnableService);
+
 
         // start face detection only *after* preview has started
         if (params.getMaxNumDetectedFaces() > 0) {
             // camera supports face detection, so can start it:
+
             camera.startFaceDetection();
 
-            getActivity().startService(new Intent(getActivity(),FaceDetService.class));
+            // v.4.1.3 return to 4.1.0 with the delayed toast
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable(){
+                @Override
+                public void run(){
+                    if (randomi == 1) {
+                        Toast.makeText(getContext(), "See Face", Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            }, 2000);
+
+            // this is version 4.1.2 i blv, toast is only created after switching screens
+            // still needs some work
+            /*if (random2 == 1){
+                handler = new Handler();
+                handler.post(runnableService);}*/
+            //getActivity().startService(new Intent(getActivity(),FaceDetService.class));
         }
 
-
-        //Context.startService(new Intent(getApplicationContext(), FaceDetService.class));
-        //startService((FaceDetService.class));
-
-        //if(randomi==1){Toast.makeText(getContext(), "I see a face", Toast.LENGTH_LONG).show();}
-        //else{Toast.makeText(getContext(), "I see space", Toast.LENGTH_LONG).show();}
 
         // Init
         /*final Handler handler = new Handler();
@@ -488,12 +520,6 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         }
     //}
 //*/
-    public void toaster(){
-        //if(random2==1)
-        {
-            //handler.postDelayed(this, 3000);
-            Toast.makeText(getContext(), "I see face", Toast.LENGTH_LONG).show();
-            //handler.postDelayed(this, 3000);
-        }
-    }
+
+
 }
