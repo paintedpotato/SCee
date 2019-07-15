@@ -72,10 +72,12 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
 
     public static int randomi = 0; // no single event of spotting face
     public static int random2 = 0; // no continual spotting of unique face
+    public static int protection = 0; // guards so that the toast won't be generated every second but 5
+
 
     private Handler handler;
 
-    public static final long DEFAULT_SYNC_INTERVAL = 10 * 1000;
+    public static final long DEFAULT_SYNC_INTERVAL = 5 * 1000; // I think this is 1s
 
     private Runnable runnableService = new Runnable() {
         @Override
@@ -83,8 +85,20 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
             //Camera.Parameters params = camera.getParameters();
 
             //create AsyncTask here
+            //camera.startFaceDetection();
+            if(random2==1){ // after every 2 s then protection will be reset to allow toast
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable(){
+                    @Override
+                    public void run(){
+                        protection = 2;
 
-                    Toast.makeText(getContext(),"See Face",Toast.LENGTH_LONG).show();
+                    }
+                }, 5000); // every 5s a toast will be generated if there's a face
+            }else{protection = 0;}
+
+            if(random2==1 & protection == 2){
+            Toast.makeText(getContext(),"See Face",Toast.LENGTH_LONG).show();}
 
 
             handler.postDelayed(runnableService, DEFAULT_SYNC_INTERVAL);
@@ -228,6 +242,10 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
             //handler.postDelayed(this, 3000);
         }*/
 
+
+        handler = new Handler();
+        handler.post(runnableService);
+
     }
 
     @Override
@@ -273,6 +291,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
     //To camera switching
     public void switchCamera() {
 
+        protection = 0;
         camera.stopPreview();
         camera.release();
         if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
@@ -374,7 +393,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
 
             camera.startFaceDetection();
 
-            // v.4.1.3 return to 4.1.0 with the delayed toast
+            /* v.4.1.3 return to 4.1.0 with the delayed toast
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable(){
                 @Override
@@ -384,7 +403,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
                     }
 
                 }
-            }, 2000);
+            }, 2000);*/
 
             // this is version 4.1.2 i blv, toast is only created after switching screens
             // still needs some work
@@ -394,8 +413,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
             //getActivity().startService(new Intent(getActivity(),FaceDetService.class));
         }
 
-
-        // Init
+// Init
         /*final Handler handler = new Handler();
         Runnable runnable = new Runnable() {
             @Override
