@@ -9,10 +9,11 @@ import android.util.Log;
 import android.graphics.Rect;
 
 import static com.example.sawe.scee.CameraFragment.randomi;
+import static com.example.sawe.scee.CameraFragment.numFaces;
 
 public class MyFaceDetectionListener implements Camera.FaceDetectionListener {
 
-
+int x = 0;
     @Override
     public void onFaceDetection(Camera.Face[] faces, Camera camera) {
 
@@ -42,7 +43,7 @@ public class MyFaceDetectionListener implements Camera.FaceDetectionListener {
             //public this1() = (FaceDetService.class.getMethods());
             // called to alert 1 face spotted
             if (CameraFragment.random2 == 0){
-                randomi = 1;
+                x = 1;
                 CameraFragment.random2 = 1;// in the case the same 1 face is still being spotted
             }
             // at this point I don't think I need randomi. It's redundant. NO
@@ -53,17 +54,20 @@ public class MyFaceDetectionListener implements Camera.FaceDetectionListener {
         // Resets the whole process when there are no (new) faces spotted
         else{
 
-            final Handler handler = new Handler();
+            /*final Handler handler = new Handler();
             handler.postDelayed(new Runnable(){
                 @Override
                 public void run(){
                     randomi = 0; // delays the transformation of randomi
 
                 }
-            }, 2000);
+            }, 2000);*/
 
+            x = 0;
             CameraFragment.random2 = 0;
         }
+        randomi = x;
+        numFaces = faces.length;
     }
 
 
