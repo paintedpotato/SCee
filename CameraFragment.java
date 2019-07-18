@@ -70,14 +70,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         return fragment;
     }
 
-    public static int randomi = 0; // no single event of spotting face
     public static int random2 = 0; // no continual spotting of unique face
     int protection = 0; // guards so that the toast won't be generated every second but 5
-    int nefesh = 3; // controls the reactivation of Runnable if !=0
-    int service = 0; // 0 for back camera, 1 for front
-
-    int tri = 0;
-    int method = 0; // is only changed after the user switches to backcamera for the first time
     int i = 0;
     static int numFaces = 0;
 
@@ -87,28 +81,14 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
 
     private Handler handler3 = new Handler();
 
-    private Handler handler5 = new Handler();
-
     public static final long DEFAULT_SYNC_INTERVAL = 5 * 1000; // The 5 controls the s it takes to poll
 
     private Runnable runnableService = new Runnable() {
         @Override
         public void run() {
-            //Camera.Parameters params = camera.getParameters();
 
-            // Does work
-            if (i!=0) { // will only be called once i.e. when switching camera
-                handler.removeCallbacksAndMessages(null);
-                handler.removeCallbacks(this);
-                //handler.post(runnableService);
-                i=0;
-                handler = handler5;
-            }// find a way to re-enable the runnable after this disables it//*/
-
-            //create AsyncTask here
-            //camera.startFaceDetection();
             if(random2==1){ // after every 2 s then protection will be reset to allow toast
-                //final Handler handler = new Handler();
+
                 handler3.postDelayed(new Runnable(){
                     @Override // why does it override protection = 0 during switchCamera()?
                     public void run(){
@@ -118,7 +98,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
                 }, 5000); // every 5s a toast will be generated if there's a face
             }else{protection = 0;} // if no face detected
 
-            if(random2==1 && protection == 2 && nefesh == 3) { // but random2 is being sent back
+            if(random2==1 && protection == 2) { // but random2 is being sent back
                 //otherwise when the user slides the camera which is facing a face to an empty side
                 // he/she wouldn't read anything.. perhaps random2's default value is set to 1.
 
@@ -239,7 +219,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         Camera.Parameters parameters;
         parameters = camera.getParameters();
 
-         camera.setDisplayOrientation(90); //90 degrees
+        camera.setDisplayOrientation(90); //90 degrees
         parameters.setPreviewFrameRate(30);
         parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
 
@@ -264,22 +244,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         }
         camera.startPreview();
         //camera.setFaceDetectionListener(faceDetectionListener);
-        //camera.startFaceDetection();
-
         camera.setFaceDetectionListener(new MyFaceDetectionListener());
-        //startFaceDetection();
         camera.startFaceDetection();
-
-
-        /*if(random2==1){
-            //handler.postDelayed(this, 3000);
-            Toast.makeText(getContext(), "I see face", Toast.LENGTH_LONG).show();
-            //handler.postDelayed(this, 3000);
-        }*/
-
-
-
-
     }
 
     @Override
@@ -293,7 +259,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         try {
             handler.removeCallbacksAndMessages(null);
 
-            camera.stopPreview(); //nefesh = 0;
+            camera.stopPreview();
 
         } catch (Exception e) {
             // ignore: tried to stop a non-existent preview
@@ -303,25 +269,15 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         try {
             camera.setPreviewDisplay(holder);
             camera.startPreview();
-            //nefesh = 3;
-
-
-            //camera.startFaceDetection(); // re-start face detection feature
+            camera.startFaceDetection(); // re-start face detection feature
             startFaceDetection();
             handler = new Handler();
             handler.post(runnableService);
 
-
         } catch (Exception e) {
             // ignore: tried to stop a non-existent preview
             Log.d(TAG, "Error starting camera preview: " + e.getMessage());
-        }
-        /*if(random2==1){
-            //handler.postDelayed(this, 3000);
-            Toast.makeText(getContext(), "I see face", Toast.LENGTH_LONG).show();
-            //handler.postDelayed(this, 3000);
         }*/
-
     }
 
     @Override
@@ -331,18 +287,10 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
     //To camera switching
     public void switchCamera() {
 
-        i++;
         random2 = 0;
         handler.removeCallbacksAndMessages(null);
         handler.removeCallbacks(runnableService);
         protection = 0; // this doesn't work
-
-        if(service==0){service=1;} // this will happen when switching to front camera
-        else if(service == 1){service=0; method = 1;} // switching back to back camera
-
-        if (service == 0 && method == 1){   // called during the first time user switches camera twice
-        handler.removeCallbacksAndMessages(null);}
-        //nefesh = 0;
 
         camera.stopPreview();
 
@@ -362,32 +310,10 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
             e.printStackTrace();
         }
         camera.startPreview();
-        //nefesh = 3;
         //camera.setFaceDetectionListener(faceDetectionListener);
-        //camera.startFaceDetection();
-
         camera.setFaceDetectionListener(new MyFaceDetectionListener());
-        //startFaceDetection();
         camera.startFaceDetection();
-/*
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable(){
-            @Override
-            public void run(){
-                if(randomi==1){Toast.makeText(getContext(), "I see a face", Toast.LENGTH_LONG).show();}
-                else{Toast.makeText(getContext(), "I see space", Toast.LENGTH_LONG).show();}
-
-            }
-        }, 5000);*/
-
-        //handler = new Handler();
-        //handler.post(runnableService);
-
-        //handler.removeCallbacks(runnableService);
-        //Handler handler5 = new Handler();
-        if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK){handler5.post(runnableService);}
-        else{handler.post(runnableService);}
-
+        handler.post(runnableService);
     }
 
     public static void setCameraDisplayOrientation(Fragment activity, // I had to change Activity to Fragment here
@@ -439,75 +365,6 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
                 break;
             }
         }
-    }
-
-    public void startFaceDetection() {
-
-        // DO NOT PUT A HANDLER HERE
-        //handler.removeCallbacksAndMessages(null);
-
-        // Try starting Face Detection
-        Camera.Parameters params = camera.getParameters();
-        //handler = new Handler();
-        //handler.post(runnableService);
-
-
-        // start face detection only *after* preview has started
-        if (params.getMaxNumDetectedFaces() >= 0) { //------------------I FINALLY FOUND THE BUG OF THE CENTURY
-        //THIS LINE WAS prev. >0 SUPPORTING A BUG I THANK GOD.
-            // camera supports face detection, so can start it:
-
-            camera.startFaceDetection();
-
-            tri = 2;
-            /* v.4.1.3 return to 4.1.0 with the delayed toast
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable(){
-                @Override
-                public void run(){
-                    if (randomi == 1) {
-                        Toast.makeText(getContext(), "See Face", Toast.LENGTH_LONG).show();
-                    }
-
-                }
-            }, 2000);*/
-
-            // this is version 4.1.2 i blv, toast is only created after switching screens
-            // still needs some work
-            /*if (random2 == 1){
-                handler = new Handler();
-                handler.post(runnableService);}*/
-            //getActivity().startService(new Intent(getActivity(),FaceDetService.class));
-        //-------------BUGONE
-        }
-        //else if(params.getMaxNumDetectedFaces() == 0 && tri == 2){
-          //  camera.startFaceDetection();
-        //}
-
-// Init
-        /*final Handler handler = new Handler();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                if(random2==1){
-                    //handler.postDelayed(this, 3000);
-                    Toast.makeText(getContext(), "I see face", Toast.LENGTH_LONG).show();
-                    //handler.postDelayed(this, 3000);
-            }
-                else if(random2==0){
-                    //handler.postDelayed(this, 3000);
-                    Toast.makeText(getContext(), "I see no face", Toast.LENGTH_LONG).show();
-                    //handler.postDelayed(this, 3000);
-                }}
-        };// a service would have been a whole lot easier
-        // went with a polling loop
-
-//Start
-        handler.postDelayed(runnable, 3000);//*/
-        //handler = new Handler();
-        //handler.post(runnableService);
-
-
     }
 
     private void LogOut() {
