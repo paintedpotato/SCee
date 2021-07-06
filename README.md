@@ -1,4 +1,4 @@
-# SCee v4
+# SC v4
 So this app can detect faces (>0) and polls every few seconds before alerting you how many faces it has detected.
 The bug to do with the switchingCamera has been eliminated after resetting random2 = 0; among the first executions within the switchCamera() method. Slight oversight.
 
